@@ -59,56 +59,76 @@ export default function Home() {
   }, [value, router]);
 
   return (
-    <>
+    <main className="flex flex-col justify-center items-center h-screen">
       {!isLoading ? (
-        <Popover open={open} onOpenChange={setOpen}>
-          <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              role="combobox"
-              aria-expanded={open}
-              className="w-[200px] justify-between"
-            >
-              {value
-                ? foods.find((food) => food.value === value)?.label
-                : "Select food..."}
-              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-[200px] p-0">
-            <Command>
-              <CommandInput placeholder="Search food..." />
-              <CommandList>
-                <CommandEmpty>No food found.</CommandEmpty>
-                <CommandGroup>
-                  {foods.map((food) => (
-                    <CommandItem
-                      key={food.value}
-                      value={food.value}
-                      onSelect={(currentValue) => {
-                        setValue(currentValue === value ? "" : currentValue);
-                        setOpen(false);
-                      }}
-                    >
-                      <Check
-                        className={cn(
-                          "mr-2 h-4 w-4",
-                          value === food.value ? "opacity-100" : "opacity-0"
-                        )}
-                      />
-                      {food.label}
-                    </CommandItem>
-                  ))}
-                </CommandGroup>
-              </CommandList>
-            </Command>
-          </PopoverContent>
-        </Popover>
+        <>
+          <h1 className="text-5xl font-extrabold mb-4">
+            Welcome to <span className="title_colored">Nutrispark</span>
+          </h1>
+          <p className="text-lg m-8 text-center">
+            Discover the nutritional value of your favorite foods. Use the
+            search below to get started.
+          </p>
+          <section>
+            <h2 className="sr-only">Food Selector</h2>
+            <Popover open={open} onOpenChange={setOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  role="combobox"
+                  aria-expanded={open}
+                  className="w-[300px] justify-between"
+                >
+                  {value
+                    ? foods.find((food) => food.value === value)?.label
+                    : "Select food..."}
+                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+
+              <PopoverContent className="w-[300px] p-0">
+                <Command>
+                  <CommandInput placeholder="Search food..." />
+                  <CommandList>
+                    <CommandEmpty>No food found.</CommandEmpty>
+                    <CommandGroup>
+                      <ul>
+                        {foods.map((food) => (
+                          <li key={food.value}>
+                            <CommandItem
+                              value={food.value}
+                              onSelect={(currentValue) => {
+                                setValue(
+                                  currentValue === value ? "" : currentValue
+                                );
+                                setOpen(false);
+                              }}
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  value === food.value
+                                    ? "opacity-100"
+                                    : "opacity-0"
+                                )}
+                              />
+                              {food.label}
+                            </CommandItem>
+                          </li>
+                        ))}
+                      </ul>
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
+          </section>
+        </>
       ) : (
-        <div className="flex justify-center items-center h-screen text-white">
+        <section>
           <p className="text-2xl">Loading...</p>
-        </div>
+        </section>
       )}
-    </>
+    </main>
   );
 }
