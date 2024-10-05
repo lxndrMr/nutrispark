@@ -18,4 +18,5 @@ export type TFoodReduced = {
 export type TMacronutrientData = {
   name: "carbohydrates" | "protein" | "fat";
   value: number;
+  fill: string;
 }

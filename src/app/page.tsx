@@ -32,13 +32,14 @@ export default function Home() {
 
   const fetchFoods = async () => {
     try {
-      const response = await fetch("/api/food/all");
+      const response = await fetch("/api/foods/all");
       const data = await response.json();
       const foodsReduced: TFoodReduced[] = data.map((food: TFood) => ({
         value: food.name.toLowerCase().replace(/\s/g, "-"), //Remplace les espaces par des tirets
         label: food.name,
       }));
       setFoods(foodsReduced);
+      
     } catch (error) {
       console.log(error);
     }
