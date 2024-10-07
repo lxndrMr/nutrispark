@@ -202,7 +202,7 @@ const FoodPage = ({ params }: { params: { name: string } }) => {
                     <p className="ml-3">
                       <strong>Vitamins : </strong>
                       <span>{food.vitamins?.join(", ")}</span>
-                    </p>
+                    </p>{" "}
                   </section>
 
                   <section className="flex items-center mb-2">
