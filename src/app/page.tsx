@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { TFood, TFoodReduced } from "@/types";
 
+import { LogIn } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -124,6 +125,10 @@ export default function Home() {
               </PopoverContent>
             </Popover>
           </section>
+          <LogIn
+            className="cursor-pointer mt-5"
+            onClick={() => router.push("/login")}
+          />
         </>
       ) : (
         <section>
