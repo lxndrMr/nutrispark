@@ -3,8 +3,8 @@
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 
-import { useState, useEffect } from "react";
-import { Undo2, TrendingUp } from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
+import { Undo2 } from "lucide-react";
 
 import { TMacronutrientData, TFood } from "@/types";
 
@@ -54,7 +54,9 @@ const FoodPage = ({ params }: { params: { name: string } }) => {
     []
   );
 
-  const fetchFood = async () => {
+  // useCallback : Cela mémorise la fonction fetchFood et la recrée uniquement lorsque la dépendance (params.name) change.
+
+  const fetchFood = useCallback(async () => {
     try {
       const APIQueryURL = `/api/foods/${params.name}`;
       const response = await fetch(APIQueryURL);
@@ -83,7 +85,7 @@ const FoodPage = ({ params }: { params: { name: string } }) => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [params.name]);
 
   useEffect(() => {
     if (params.name) {
@@ -92,25 +94,26 @@ const FoodPage = ({ params }: { params: { name: string } }) => {
       };
       initialize();
     }
-  }, [params.name]);
+  }, [params.name, fetchFood]);
 
   return (
     <>
       {!isLoading && food && macronutriments ? (
-        <div className="p-8 text-white">
+        <section className="p-8">
           <Undo2
             className="cursor-pointer text-white mb-5"
             onClick={() => router.push("/")}
           />
-          <h1 className="mb-6 text-5xl font-bold leading-tight tracking-tight md:text-6xl lg:text-7xl">
-            {food.name}
-          </h1>
-          <div className="flex flex-col md:flex-row items-center md:items-start">
+          <section className="flex flex-col md:flex-row items-center md:items-start">
             <div className="w-full md:w-1/2 lg:w-1/3 mb-8 md:mb-0">
               <Card className="flex flex-col mb-4">
                 <CardHeader className="items-center pb-0">
-                  <CardTitle>Pie Chart - Donut</CardTitle>
-                  <CardDescription>January - June 2024</CardDescription>
+                  <CardTitle className="mb-6 text-5xl font-bold leading-tight tracking-tight md:text-6xl lg:text-7xl">
+                    {food.name}
+                  </CardTitle>
+                  <CardDescription>
+                    The nutritional values of {params.name}.
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="flex-1 pb-0">
                   <ChartContainer
@@ -132,27 +135,20 @@ const FoodPage = ({ params }: { params: { name: string } }) => {
                   </ChartContainer>
                 </CardContent>
                 <CardFooter className="flex-col gap-2 text-sm">
-                  <div className="flex items-center gap-2 font-medium leading-none">
-                    Trending up by 5.2% this month{" "}
-                    <TrendingUp className="h-4 w-4" />
-                  </div>
-                  <div className="leading-none text-muted-foreground">
-                    Showing total visitors for the last 6 months
-                  </div>
-                  <div className="text-center mt-4">
-                    <span className="inline-block w-3 h-3 bg-[hsl(var(--chart-2))] mr-2 ml-4 ">
-                      {" "}
-                    </span>{" "}
-                    Carbohydrates
-                    <span className="inline-block w-3 h-3 bg-[hsl(var(--chart-4))] mr-2 ml-4">
-                      {" "}
-                    </span>{" "}
-                    Protein
-                    <span className="inline-block w-3 h-3 bg-[hsl(var(--chart-3))] mr-2 ml-4">
-                      {" "}
-                    </span>{" "}
-                    Fat
-                  </div>
+                  <ul className="flex text-center mt-4">
+                    <li>
+                      <span className="inline-block w-3 h-3 bg-[hsl(var(--chart-2))] mr-2 ml-4 "></span>
+                      Carbohydrates
+                    </li>
+                    <li>
+                      <span className="inline-block w-3 h-3 bg-[hsl(var(--chart-4))] mr-2 ml-4"></span>
+                      Protein
+                    </li>
+                    <li>
+                      <span className="inline-block w-3 h-3 bg-[hsl(var(--chart-3))] mr-2 ml-4"></span>
+                      Fat
+                    </li>
+                  </ul>
                 </CardFooter>
               </Card>
             </div>
@@ -163,68 +159,71 @@ const FoodPage = ({ params }: { params: { name: string } }) => {
                   <CardDescription>per 100 grams :</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="mb-4 p-4 text-white bg-gray-800 shadow-inner w-full flex ">
-                    {/* pas de border radius?  */}
-                    <div className="w-5 h-5 bg-[hsl(var(--chart-2))] border border-gray-700 mr-3">
-                      {" "}
-                    </div>
-                    <div>
-                      Carbohydrates :{" "}
-                      <span className="font-medium">{food.carbohydrates}g</span>
-                    </div>
-                  </div>
-                  <div className="mb-4 p-4 text-white bg-gray-800 shadow-inner w-full flex">
-                    {/* pas de border radius?  */}
-                    <div className="w-5 h-5 bg-[hsl(var(--chart-4))] border border-gray-700 mr-3">
-                      {" "}
-                    </div>
-                    <div>
-                      Portein :{" "}
-                      <span className="font-medium">{food.protein}g</span>
-                    </div>
-                  </div>
-                  <div className="mb-4 p-4 text-white bg-gray-800 shadow-inner w-full flex">
-                    {/* pas de border radius?  */}
-                    <div className="w-5 h-5 bg-[hsl(var(--chart-3))] border border-gray-700 mr-3">
-                      {" "}
-                    </div>
-                    <div>
-                      Fat : <span className="font-medium">{food.fat}g</span>
-                    </div>
-                  </div>
+                  <ul className=" mb-4 p-4 bg-gray-800 shadow-inner w-full flex flex-col rounded-lg">
+                    <li>
+                      Calories :
+                      <span className="font-medium">{food.calories} cal</span>
+                    </li>
+                    <li className="flex items-center">
+                      <span
+                        className="inline-block w-5 h-5 bg-[hsl(var(--chart-2))] border border-gray-700 mr-3"
+                        aria-label="Carbohydrates color indicator"
+                      ></span>
+                      Carbohydrates :
+                      <span className="font-medium">
+                        {food.carbohydrates} g
+                      </span>
+                    </li>
+                    <li className="flex items-center">
+                      <span
+                        className="inline-block w-5 h-5 bg-[hsl(var(--chart-4))] border border-gray-700 mr-3"
+                        aria-label="Protein color indicator"
+                      ></span>
+                      Protein :
+                      <span className="font-medium">{food.protein} g</span>
+                    </li>
+                    <li className="flex items-center">
+                      <span
+                        className="inline-block w-5 h-5 bg-[hsl(var(--chart-3))] border border-gray-700 mr-3"
+                        aria-label="Fat color indicator"
+                      ></span>
+                      Fat : <span className="font-medium">{food.fat} g</span>
+                    </li>
+                  </ul>
                 </CardContent>
                 <CardFooter className="mt-4 flex flex-col">
-                  <div className="flex items-center mb-2">
+                  <section className="flex items-center mb-2">
                     <Image
                       src="/vitamins.png"
                       alt="vitamins"
                       width={30}
                       height={30}
                     />
-                    <div className="ml-3">
-                      <span className="font-semibold">Vitamins : </span>
-                      {food.vitamins?.join(", ")}
-                    </div>
-                  </div>
-                  <div className="flex items-center mb-2">
+                    <p className="ml-3">
+                      <strong>Vitamins : </strong>
+                      <span>{food.vitamins?.join(", ")}</span>
+                    </p>
+                  </section>
+
+                  <section className="flex items-center mb-2">
                     <Image
                       src="/minerals.png"
                       alt="minerals"
                       width={30}
                       height={30}
                     />
-                    <div className="ml-3">
-                      <span className="font-semibold">Minerals : </span>
-                      {food.minerals?.join(", ")}
-                    </div>
-                  </div>
+                    <p className="ml-3">
+                      <strong>Minerals : </strong>
+                      <span>{food.minerals?.join(", ")}</span>
+                    </p>
+                  </section>
                 </CardFooter>
               </Card>
             </div>
-          </div>
-        </div>
+          </section>
+        </section>
       ) : (
-        <section>
+        <section className="flex flex-col justify-center items-center h-screen">
           <p className="text-2xl">Loading...</p>
         </section>
       )}
