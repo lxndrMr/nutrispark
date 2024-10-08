@@ -30,6 +30,8 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 
+// Need to change this component to separate the logic from the view
+
 const formSchema = z
   .object({
     email: z.string().email("Invalid email").min(2).max(50),
