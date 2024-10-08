@@ -30,18 +30,38 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 
-const formSchema = z.object({
-  email: z.string().min(2).max(50),
-  password: z.string().min(2).max(50),
-  passwordConfirmed: z.string().min(2).max(50),
-});
+const formSchema = z
+  .object({
+    email: z.string().email("Invalid email").min(2).max(50),
+    password: z
+      .string()
+      .min(8, "Password too short")
+      .max(50)
+      .regex(/[A-Z]/, "Password must contain at least one uppercase letter") // Au moins une majuscule
+      .regex(/[0-9]/, "Password must contain at least one number") // Au moins un chiffre
+      .regex(/[\W_]/, "Password must contain at least one special character"), // Au moins un caractère spécial
+    passwordConfirmed: z
+      .string()
+      .min(8, "Password too short")
+      .max(50),
+  })
+  .refine((data) => data.password === data.passwordConfirmed, {
+    message: "Passwords do not match",
+    path: ["passwordConfirmed"], // Erreur mise sur ce champ
+  });
 
 type SignUpForValues = z.infer<typeof formSchema>;
 
 const Login = () => {
   const { toast } = useToast();
-  const router = useRouter()
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showPasswordConfirmed, setShowPasswordConfirmed] = useState(false);
+
+  const togglePasswordVisibility = () => setShowPassword(!showPassword);
+  const togglePasswordConfirmedVisibility = () =>
+    setShowPasswordConfirmed(!showPasswordConfirmed);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -56,6 +76,7 @@ const Login = () => {
     email,
     password,
   }: SignUpForValues) => {
+    console.log("Form submitted with:", email, password);
     try {
       setIsLoading(true);
       await signUpUser(email, password);
@@ -92,7 +113,7 @@ const Login = () => {
                   <FormItem className="mb-8">
                     <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input placeholder="Your email address." {...field} />
+                      <Input placeholder="Your email address" {...field} />
                     </FormControl>
                     <FormDescription>Your email address.</FormDescription>
                     <FormMessage />
@@ -106,7 +127,19 @@ const Login = () => {
                   <FormItem className="mb-8">
                     <FormLabel>Password</FormLabel>
                     <FormControl>
-                      <Input placeholder="Password" {...field} />
+                      <div className="relative">
+                        <Input
+                          type={showPassword ? "text" : "password"}
+                          placeholder="Password"
+                          {...field}
+                        />
+                        <span
+                          onClick={togglePasswordVisibility}
+                          className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
+                        >
+                          {showPassword ? "🙈" : "👁️"}
+                        </span>
+                      </div>
                     </FormControl>
                     <FormDescription>Your password.</FormDescription>
                     <FormMessage />
@@ -120,7 +153,19 @@ const Login = () => {
                   <FormItem className="mb-8">
                     <FormLabel>Password Confirmed</FormLabel>
                     <FormControl>
-                      <Input placeholder="Confirm your password." {...field} />
+                      <div className="relative">
+                        <Input
+                          type={showPasswordConfirmed ? "text" : "password"}
+                          placeholder="Confirm password"
+                          {...field}
+                        />
+                        <span
+                          onClick={togglePasswordConfirmedVisibility}
+                          className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
+                        >
+                          {showPasswordConfirmed ? "🙈" : "👁️"}
+                        </span>
+                      </div>
                     </FormControl>
                     <FormDescription>Confirm your password.</FormDescription>
                     <FormMessage />
@@ -129,15 +174,17 @@ const Login = () => {
               />
             </CardContent>
             <CardFooter className="flex justify-center">
-              <Button type="submit">Submit</Button>
+              <Button type="submit" disabled={isLoading}>
+                {isLoading ? "Submitting..." : "Submit"}
+              </Button>
             </CardFooter>
           </Card>
         </form>
       </Form>
       <Undo2
-            className="cursor-pointer text-white mb-5"
-            onClick={() => router.push("/")}
-          />
+        className="cursor-pointer text-white mb-5"
+        onClick={() => router.push("/")}
+      />
     </main>
   );
 };
